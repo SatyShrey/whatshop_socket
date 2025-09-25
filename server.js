@@ -22,12 +22,9 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     try {
         const email = socket.handshake.query.email;
-        if (!email) { return }
+        const token = socket.handshake.query.token;
         socket.join(email);
-        const cookies = cookie.parse(socket.handshake.headers.cookie || "");
-        const token = cookies["hiUser"];
-        //jwt.verify(token,secret);
-        io.to(socket.id).emit('error', token)
+        jwt.verify(token, secret);
         socket.on('send_message', (newChat) => {
             newChat.sender = email;
             io.to(newChat.receiver).emit('receive_message', newChat);
@@ -41,7 +38,8 @@ io.on('connection', (socket) => {
         socket.on('disconnect', () => {
             //console.log("User disconnected:", email);
         })
-    } catch (err) { io.to(socket.id).emit('error', err.message) }
+        io.to(email).emit('success', "socket connection sucsess");
+    } catch (err) { io.to(socket.id).emit('error',"socket error:"+ err.message) }
 });
 
 
