@@ -23,6 +23,7 @@ server
 *.njsproj
 *.sln
 *.sw?
+*.env
 
 # Local Netlify folder
 .netlify
