@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
         const cookies = cookie.parse(socket.handshake.headers.cookie || "");
         const token = cookies["hiUser"];
         //jwt.verify(token,secret);
-        io.to(socket.id).emit('error', cookies)
+        io.to(socket.id).emit('error', token)
         socket.on('send_message', (newChat) => {
             newChat.sender = email;
             io.to(newChat.receiver).emit('receive_message', newChat);
