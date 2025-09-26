@@ -10,6 +10,7 @@ app.use(cookieParser());
 const server = http.createServer(app);
 const origin = process.env.origin
 const secret = process.env.secret
+let onlineUsers=[];
 const io = new Server(server, {
     cors: {
         origin,
@@ -24,6 +25,7 @@ io.on('connection', (socket) => {
         const email = socket.handshake.query.email;
         const token = socket.handshake.query.token;
         socket.join(email);
+        onlineUsers.push(email);
         jwt.verify(token, secret);
         socket.on('send_message', (newChat) => {
             newChat.sender = email;
@@ -36,9 +38,11 @@ io.on('connection', (socket) => {
         });
 
         socket.on('disconnect', () => {
-            //console.log("User disconnected:", email);
+            let newOnlineusers=onlineUsers.filter(f=>f !== email);
+            io.emit('offline',newOnlineusers);
         })
-        io.to(email).emit('success', "socket connection sucsess");
+        io.emit('online', onlineUsers);
+        io.to(email).emit('success', "socket connected");
     } catch (err) { io.to(socket.id).emit('error',"socket error:"+ err.message) }
 });
 
